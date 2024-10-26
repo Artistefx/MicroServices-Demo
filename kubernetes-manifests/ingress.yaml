@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: microservices-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1  # Keeps path structure for individual backends
+spec:
+  ingressClassName: nginx  # specify if using a specific ingress controller
+  rules:
+    - host: myapp.example.com
+      http:
+        paths:
+          - path: /customers(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: customer-service
+                port:
+                  number: 80
+          - path: /orders(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: order-service
+                port:
+                  number: 80
