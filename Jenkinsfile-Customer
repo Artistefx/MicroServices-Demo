@@ -11,6 +11,16 @@ pipeline {
             }
         }
 
+        stage('Set Docker Environment for Minikube') {
+            steps {
+                script {
+                    // Set environment variable for Docker to use Minikube
+                    def dockerEnv = bat(script: 'minikube docker-env --shell=cmd', returnStdout: true).trim()
+                    bat "call ${dockerEnv}" // Set the environment for the current step
+                }
+            }
+        }
+
         stage('Build and Test Customer Service') {
             steps {
                 dir('Customer-Service') {
@@ -20,24 +30,10 @@ pipeline {
             }
         }
 
-        stage('Set Docker Environment for Minikube') {
-            steps {
-                script {
-                    // Set up Docker environment to use Minikube's Docker daemon
-                    // Make sure Minikube is running
-                    bat 'minikube start --driver=docker'
-                    
-                    // Set environment variable for Docker
-                    env.DOCKER_ENV = bat(script: 'minikube docker-env --shell=cmd', returnStdout: true).trim()
-                    bat "call ${env.DOCKER_ENV}"
-                }
-            }
-        }
-
-        stage('Build Docker Image in Minikube') {
+        stage('Build Docker Image') {
             steps {
                 dir('Customer-Service') {
-                    // Build the Docker image inside Minikube
+                    // Build the Docker image inside Minikube's Docker daemon
                     bat 'docker build -t customer-service:latest .'
                 }
             }
