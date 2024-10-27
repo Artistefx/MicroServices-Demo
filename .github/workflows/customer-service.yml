@@ -50,7 +50,7 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t $REGISTRY/customer-service:latest ./customer-service
+          docker build -t $REGISTRY/customer-service:latest ./Customer-Service
 
       - name: Push Docker Image to Minikube
         run: |
