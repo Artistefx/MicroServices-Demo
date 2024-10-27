@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        K8S_NAMESPACE = "default"                  // Kubernetes namespace
-        IMAGE_NAME = "customer-service:latest"     // Image tag
-    }
-
     stages {
         stage('Checkout Code') {
             steps {
@@ -14,31 +9,11 @@ pipeline {
             }
         }
 
-        stage('Set Minikube Docker Environment') {
-            steps {
-                script {
-                    // Capture the Minikube docker-env command output
-                    def dockerEnvCmd = powershell(script: 'minikube -p minikube docker-env', returnStdout: true).trim()
-                    
-                    // Set the environment variables based on the output
-                    def lines = dockerEnvCmd.split('\n')
-                    lines.each { line ->
-                        if (line.startsWith('export')) {
-                            def parts = line.split('=')
-                            def key = parts[0].replace('export ', '').trim()
-                            def value = parts[1].replace('"', '').trim()
-                            env."${key}" = value
-                        }
-                    }
-                }
-            }
-        }
-
         stage('Build and Test Customer Service') {
             steps {
                 dir('Customer-Service') {
-                    // Build and test with Maven
-                    powershell 'mvn clean install -DskipTests=false'
+                    // Run Maven build and tests
+                    bat 'mvn clean install -DskipTests=false'
                 }
             }
         }
@@ -46,17 +21,17 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 dir('Customer-Service') {
-                    // Build the Docker image and tag it
-                    powershell "docker build -t ${IMAGE_NAME} ."
+                    // Build the Docker image
+                    bat 'docker build -t customer-service:latest .'
                 }
             }
         }
 
         stage('Deploy to Minikube') {
             steps {
-                // Deploy the application to Minikube using Kubernetes manifests
-                powershell 'kubectl apply -f kubernetes-manifests/customer-service-deployment.yaml'
-                powershell 'kubectl apply -f kubernetes-manifests/customer-service-service.yaml'
+                // Deploy the application to Minikube
+                bat 'kubectl apply -f kubernetes-manifests/customer-service-deployment.yaml'
+                bat 'kubectl apply -f kubernetes-manifests/customer-service-service.yaml'
             }
         }
     }
