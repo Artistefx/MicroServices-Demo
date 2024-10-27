@@ -20,10 +20,20 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Set Docker Environment for Minikube') {
+            steps {
+                script {                    
+                    // Set environment variable for Docker
+                    env.DOCKER_ENV = bat(script: 'minikube docker-env --shell=cmd', returnStdout: true).trim()
+                    bat "call ${env.DOCKER_ENV}"
+                }
+            }
+        }
+
+        stage('Build Docker Image in Minikube') {
             steps {
                 dir('Customer-Service') {
-                    // Build the Docker image
+                    // Build the Docker image inside Minikube
                     bat 'docker build -t customer-service:latest .'
                 }
             }
