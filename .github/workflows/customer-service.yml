@@ -59,7 +59,7 @@ jobs:
       - name: Push Docker Image to Minikube
         run: |
           # Push the image to Minikube's Docker daemon (optional)
-          docker tag $REGISTRY/customer-service:latest customer-service:latest
+          docker tag "$($env:REGISTRY)/customer-service:latest" customer-service:latest
           docker push customer-service:latest
 
       - name: Deploy to Minikube
