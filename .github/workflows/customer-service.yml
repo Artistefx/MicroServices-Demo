@@ -13,8 +13,7 @@ jobs:
   build-and-deploy:
     runs-on: windows-latest
     env:
-      REGISTRY: localhost:5000  # Use a local Docker registry
-      K8S_NAMESPACE: default      # Replace with your Kubernetes namespace
+      K8S_NAMESPACE: default  # Replace with your Kubernetes namespace
 
     steps:
       - name: Checkout Code
@@ -46,11 +45,13 @@ jobs:
         run: |
           echo "${{ secrets.KUBE_CONFIG }}" > $HOME\.kube\config
 
-      #- name: Log in to Docker Registry
-      #  uses: docker/login-action@v2
-      #  with:
-      #    username: ${{ secrets.DOCKER_USERNAME }}
-      #    password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Set Docker Environment for Minikube
+        run: |
+          echo "Setting up Docker environment variables for Minikube"
+          # Assuming Minikube is running and the registry is accessible
+          $env:DOCKER_HOST="tcp://$(minikube ip):2376"
+          $env:DOCKER_CERT_PATH="$HOME\.minikube\certs"
+          $env:DOCKER_TLS_VERIFY="1"
 
       - name: Build and Test Customer Service
         working-directory: Customer-Service
@@ -59,11 +60,7 @@ jobs:
 
       - name: Print Docker Tag
         run: |
-          echo "Docker Tag: $($env:REGISTRY)/customer-service:latest"
-
-      - name: Configure Docker for Minikube
-        run: |
-          minikube docker-env | Invoke-Expression
+          echo "Docker Tag: customer-service:latest"
 
       - name: Build Docker Image
         run: |
@@ -71,11 +68,10 @@ jobs:
 
       - name: Push Docker Image to Minikube
         run: |
-          # Tag the image for Minikube
-          docker tag "customer-service:latest" "customer-service:latest"
           # Push the image to Minikube's Docker daemon
+          docker tag "customer-service:latest" "customer-service:latest"
           docker push "customer-service:latest"
-          
+
       - name: Deploy to Minikube
         env:
           KUBECONFIG: ${{ secrets.KUBE_CONFIG }}
