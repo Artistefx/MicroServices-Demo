@@ -24,7 +24,7 @@ pipeline {
             steps {
                 dir('Customer-Service') {
                     // Build the Docker image
-                    bat 'docker build -t customer-service:latest .'
+                    bat 'docker build -t artistefx/customer-service:latest .'
                 }
             }
         }
