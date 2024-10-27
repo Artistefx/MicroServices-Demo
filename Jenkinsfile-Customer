@@ -3,7 +3,8 @@ pipeline {
     tools {
         maven "maven-3.9.7"
     }
-    stage('Checkout Code') {
+    stages {
+        stage('Checkout Code') {
             steps {
                 // Checkout the code from the repository
                 checkout scm
@@ -45,3 +46,4 @@ pipeline {
             }
         }
     }
+}
