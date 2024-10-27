@@ -1,0 +1,50 @@
+pipeline {
+    agent any
+
+    environment {
+        K8S_NAMESPACE = "default"                  // Kubernetes namespace
+        IMAGE_NAME = "customer-service:latest"     // Image tag
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                // Checkout the code from the repository
+                checkout scm
+            }
+        }
+
+        stage('Set Minikube Docker Environment') {
+            steps {
+                // Set Docker environment to use Minikube's Docker daemon
+                powershell 'minikube -p minikube docker-env | Invoke-Expression'
+            }
+        }
+
+        stage('Build and Test Customer Service') {
+            steps {
+                dir('Customer-Service') {
+                    // Build and test with Maven
+                    powershell 'mvn clean install -DskipTests=false'
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                dir('Customer-Service') {
+                    // Build the Docker image and tag it
+                    powershell "docker build -t ${IMAGE_NAME} ."
+                }
+            }
+        }
+
+        stage('Deploy to Minikube') {
+            steps {
+                // Deploy the application to Minikube using Kubernetes manifests
+                powershell 'kubectl apply -f kubernetes-manifests/customer-service-deployment.yaml'
+                powershell 'kubectl apply -f kubernetes-manifests/customer-service-service.yaml'
+            }
+        }
+    }
+}
