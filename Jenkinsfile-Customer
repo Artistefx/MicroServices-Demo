@@ -6,12 +6,13 @@ pipeline {
     stages {
         stage('Deploy to Minikube') {
             steps {
-                env.KUBECONFIG = "C:\\Users\\HP\\.kube\\config"
-                // Deploy the application to Minikube
-                bat 'kubectl config view'
-                bat 'kubectl config get-contexts'
-                bat 'kubectl apply -f kubernetes-manifests/customer-service-deployment.yaml'
-                bat 'kubectl apply -f kubernetes-manifests/customer-service-service.yaml'
+                kubeconfig(credentialsId: 'Kubeconf', serverUrl: '') {
+                    // Deploy the application to Minikube
+                    bat 'kubectl config view'
+                    bat 'kubectl config get-contexts'
+                    bat 'kubectl apply -f kubernetes-manifests/customer-service-deployment.yaml'
+                    bat 'kubectl apply -f kubernetes-manifests/customer-service-service.yaml'
+                }
             }
         }
     }
