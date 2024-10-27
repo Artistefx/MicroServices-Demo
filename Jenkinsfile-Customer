@@ -6,6 +6,7 @@ pipeline {
     stages {
         stage('Deploy to Minikube') {
             steps {
+                env.KUBECONFIG = "C:\\Users\\HP\\.kube\\config"
                 // Deploy the application to Minikube
                 bat 'kubectl config view'
                 bat 'kubectl config get-contexts'
