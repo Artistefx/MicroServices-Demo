@@ -1,9 +1,9 @@
-name: CI/CD for Customer Service
+name: CI/CD for Order Service
 
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - 'Order-service/**'
       - 'kubernetes-manifests/order-service-deployment.yaml'

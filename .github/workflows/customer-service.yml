@@ -3,7 +3,7 @@ name: CI/CD for Customer Service
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - 'Customer-service/**'
       - 'kubernetes-manifests/customer-service-deployment.yaml'
