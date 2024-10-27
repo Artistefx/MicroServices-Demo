@@ -4,34 +4,11 @@ pipeline {
         maven "maven-3.9.7"
     }
     stages {
-        stage('Checkout Code') {
-            steps {
-                // Checkout the code from the repository
-                checkout scm
-            }
-        }
-
-        stage('Build and Test Customer Service') {
-            steps {
-                dir('Customer-Service') {
-                    // Run Maven build and tests
-                    bat 'mvn clean install -DskipTests=false'
-                }
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                dir('Customer-Service') {
-                    // Build the Docker image
-                    bat 'docker build -t customer-service:latest .'
-                }
-            }
-        }
-
         stage('Deploy to Minikube') {
             steps {
                 // Deploy the application to Minikube
+                bat 'kubectl config view'
+                bat 'kubectl config get-contexts'
                 bat 'kubectl apply -f kubernetes-manifests/customer-service-deployment.yaml'
                 bat 'kubectl apply -f kubernetes-manifests/customer-service-service.yaml'
             }
