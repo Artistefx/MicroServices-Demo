@@ -3,22 +3,22 @@ kind: Ingress
 metadata:
   name: microservices-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1  # Keeps path structure for individual backends
+    nginx.ingress.kubernetes.io/rewrite-target: /$2  # Adjust the capture group if necessary
 spec:
-  ingressClassName: nginx  # specify if using a specific ingress controller
+  ingressClassName: nginx
   rules:
     - host: myapp.example.com
       http:
         paths:
           - path: /customers(/|$)(.*)
-            pathType: Prefix
+            pathType: ImplementationSpecific  # Change to ImplementationSpecific
             backend:
               service:
                 name: customer-service
                 port:
                   number: 80
           - path: /orders(/|$)(.*)
-            pathType: Prefix
+            pathType: ImplementationSpecific  # Change to ImplementationSpecific
             backend:
               service:
                 name: order-service

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.Optional;
 
-@FeignClient(name = "customer-service")
+@FeignClient(name = "customer-service.default.svc.cluster.local")
 public interface CustomerClient {
 
     @GetMapping("/customers/{id}")
