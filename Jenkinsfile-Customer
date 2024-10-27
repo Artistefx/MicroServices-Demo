@@ -22,7 +22,11 @@ pipeline {
 
         stage('Set Docker Environment for Minikube') {
             steps {
-                script {                    
+                script {
+                    // Set up Docker environment to use Minikube's Docker daemon
+                    // Make sure Minikube is running
+                    bat 'minikube start --driver=docker'
+                    
                     // Set environment variable for Docker
                     env.DOCKER_ENV = bat(script: 'minikube docker-env --shell=cmd', returnStdout: true).trim()
                     bat "call ${env.DOCKER_ENV}"
