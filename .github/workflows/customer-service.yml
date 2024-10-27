@@ -1,4 +1,4 @@
-name: CI/CD for Customer Service
+name: CI/CD for Customer Service on Minikube (Windows)
 
 on:
   push:
@@ -12,18 +12,25 @@ on:
 jobs:
   build-and-deploy:
     runs-on: windows-latest
-    env:
-      K8S_NAMESPACE: default  # Replace with your Kubernetes namespace
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
 
+      - name: Start Minikube
+        run: |
+          minikube start --driver=docker
+
+      - name: Set Docker Environment for Minikube
+        run: |
+          echo "Setting up Docker environment variables for Minikube"
+          minikube -p minikube docker-env | Invoke-Expression
+
       - name: Cache Maven Dependencies
         uses: actions/cache@v2
         with:
           path: |
-            ~/.m2/repository
+            C:\Users\runneradmin\.m2\repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
@@ -34,47 +41,16 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
-      - name: Check Docker Version
-        run: docker --version
-
-      - name: Set up Kubeconfig Directory
-        run: |
-          mkdir $HOME\.kube
-
-      - name: Set up Kubeconfig
-        run: |
-          echo "${{ secrets.KUBE_CONFIG }}" > $HOME\.kube\config
-
-      - name: Set Docker Environment for Minikube
-        run: |
-          echo "Setting up Docker environment variables for Minikube"
-          # Assuming Minikube is running and the registry is accessible
-          $env:DOCKER_HOST="tcp://$(minikube ip):2376"
-          $env:DOCKER_CERT_PATH="$HOME\.minikube\certs"
-          $env:DOCKER_TLS_VERIFY="1"
-
       - name: Build and Test Customer Service
         working-directory: Customer-Service
         run: |
           mvn clean install -DskipTests=false
 
-      - name: Print Docker Tag
+      - name: Build Docker Image for Customer Service
         run: |
-          echo "Docker Tag: customer-service:latest"
+          docker build -t customer-service:latest ./Customer-Service
 
-      - name: Build Docker Image
-        run: |
-          docker build -t "customer-service:latest" ./Customer-Service
-
-      - name: Push Docker Image to Minikube
-        run: |
-          # Push the image to Minikube's Docker daemon
-          docker tag "customer-service:latest" "customer-service:latest"
-          docker push "customer-service:latest"
-
-      - name: Deploy to Minikube
-        env:
-          KUBECONFIG: ${{ secrets.KUBE_CONFIG }}
+      - name: Deploy Customer Service to Minikube
         run: |
           kubectl apply -f kubernetes-manifests/customer-service-deployment.yaml
           kubectl apply -f kubernetes-manifests/customer-service-service.yaml
