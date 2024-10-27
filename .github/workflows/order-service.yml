@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - 'Order-service/**'
+      - 'Order-Service/**'
       - 'kubernetes-manifests/order-service-deployment.yaml'
       - 'kubernetes-manifests/order-service-service.yaml'
 

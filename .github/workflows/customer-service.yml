@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - 'Customer-service/**'
+      - 'Customer-Service/**'
       - 'kubernetes-manifests/customer-service-deployment.yaml'
       - 'kubernetes-manifests/customer-service-service.yaml'
 
