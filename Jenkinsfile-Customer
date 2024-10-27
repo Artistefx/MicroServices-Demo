@@ -16,8 +16,12 @@ pipeline {
 
         stage('Set Minikube Docker Environment') {
             steps {
-                // Set Docker environment to use Minikube's Docker daemon
-                powershell 'minikube -p minikube docker-env | Invoke-Expression'
+                script {
+                    // Capture the Minikube docker-env command output
+                    def dockerEnvCmd = powershell(script: 'minikube -p minikube docker-env', returnStdout: true).trim()
+                    // Execute the command to set the Docker environment
+                    powershell "Invoke-Expression '${dockerEnvCmd}'"
+                }
             }
         }
 
