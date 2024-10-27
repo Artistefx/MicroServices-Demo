@@ -61,17 +61,21 @@ jobs:
         run: |
           echo "Docker Tag: $($env:REGISTRY)/customer-service:latest"
 
+      - name: Configure Docker for Minikube
+        run: |
+          minikube docker-env | Invoke-Expression
+
       - name: Build Docker Image
         run: |
-          docker build -t "$($env:REGISTRY)/customer-service:latest" --build-arg BASE_IMAGE="$($env:REGISTRY)/custom-jdk:latest" ./Customer-Service
+          docker build -t "customer-service:latest" ./Customer-Service
 
       - name: Push Docker Image to Minikube
         run: |
           # Tag the image for Minikube
-          docker tag "$($env:REGISTRY)/customer-service:latest" customer-service:latest
-          # Push the image to Minikube's Docker daemon (optional)
-          docker push customer-service:latest
-
+          docker tag "customer-service:latest" "customer-service:latest"
+          # Push the image to Minikube's Docker daemon
+          docker push "customer-service:latest"
+          
       - name: Deploy to Minikube
         env:
           KUBECONFIG: ${{ secrets.KUBE_CONFIG }}
