@@ -13,19 +13,15 @@ pipeline {
 
         stage('Build and Test Customer Service') {
             steps {
-                dir('Customer-Service') {
                     // Run Maven build and tests
                     bat 'mvn clean install -DskipTests=false'
-                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                dir('Customer-Service') {
                     // Build the Docker image
                     bat 'docker build -t artistefx/customer-service:latest .'
-                }
             }
         }
 
